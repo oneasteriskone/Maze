@@ -7,6 +7,7 @@ def getRandomCorner(start, field):
 	dir = (0,0)
 	while stack:
 		moves = getMoves(node, field)
+		random.shuffle(moves)
 		for m in moves:
 			if m not in visited:
 				dir = m

@@ -14,8 +14,16 @@ red = (220, 50, 47)
 green = (133, 153, 0)
 windowSize = (780, 580)	
 
+def getDistance(a, b):
+        ax, ay = a
+        bx, by = b
+        re = abs(ax-bx)+abs(ay-by)
+	return re
+
+#player position
 ppos = (1,0)
 
+#building maze, plates and fakewalls
 maze = mazebuilder.build(mazebuilder.createField(((windowSize[0]/cellsize)/2), ((windowSize[1]/cellsize)/2)))
 path = pathfinder.getPath((1,0), (37, 28), maze)
 variableWall = path[(len(path)/3)*2]
@@ -23,6 +31,9 @@ vx,vy = variableWall
 print variableWall
 maze[vy][vx] = 'W'
 plate = pathfinder.getRandomCorner((1,0), maze)
+while getDistance(variableWall, plate) < 2:
+	plate = pathfinder.getRandomCorner((1,0), maze)
+
 px,py = plate
 maze[py][px] = 'P'
 print plate
@@ -40,26 +51,47 @@ player = pygame.image.load('img/player.png')
 def main():
 	chrash = False
 	while not chrash: #main game loop
+		run()
+		pygame.quit()
+
+def run():
+	while True:
 		dir = 'WAIT'
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				pygame.quit()
-			elif event.type == pygame.KEYDOWN:
-				if (event.key == pygame.K_LEFT):
-                    			dir = 'LEFT'
-                		elif (event.key == pygame.K_RIGHT):
-                    			dir = 'RIGHT'
-                		elif (event.key == pygame.K_UP):
-                    			dir = 'UP'
-                		elif (event.key == pygame.K_DOWN):
-                    			dir = 'DOWN'
-		movePlayer(dir)	
-		display.fill(base03)
-		drawField()
-		drawGrid()
-		drawPlayer()
-		pygame.display.update()		
-		clock.tick(60)
+                for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                                pygame.quit()
+                        elif event.type == pygame.KEYDOWN:
+                                if (event.key == pygame.K_LEFT):
+                                        dir = 'LEFT'
+                                elif (event.key == pygame.K_RIGHT):
+                                        dir = 'RIGHT'
+                                elif (event.key == pygame.K_UP):
+                                        dir = 'UP'
+                                elif (event.key == pygame.K_DOWN):
+                                        dir = 'DOWN'
+                movePlayer(dir)
+                if checkPlayer():
+			return
+                display.fill(base03)
+                drawField()
+                drawGrid()
+                drawPlayer()
+                pygame.display.update()
+                clock.tick(60)
+
+def checkPlayer():
+	global variableWall
+	wx, wy = variableWall
+	global pState
+	global plate
+	global ppos
+	if pState == 0:
+		if ppos == plate:
+			maze[wy][wx] = '.'
+			pState = 1
+	if ppos == (37, 28):	
+		return True
+	return False	
 
 def drawField():
 	global maze
@@ -71,10 +103,10 @@ def drawField():
 				pygame.draw.rect(display, base00, block)
 			elif maze[y][x] == 'W':
 				block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
-                                pygame.draw.rect(display, red, block)
+                                pygame.draw.rect(display, base00, block)
 			elif maze[y][x] == 'P':
 				block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
-                                pygame.draw.rect(display, green if pState == 0 else red, block)
+                                pygame.draw.rect(display, red if pState == 0 else green, block)
 	 			
 def movePlayer(direction):
 	global ppos
