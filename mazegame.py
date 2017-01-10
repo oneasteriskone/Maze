@@ -26,15 +26,21 @@ def getDistance(a, b):
 #player position
 ppos = (1,0)
 
+#viewing distance
+vision = 4
+
 #building maze, plates and fakewalls
 maze = mazebuilder.build(mazebuilder.createField(((windowSize[0]/cellsize)/2), ((windowSize[1]/cellsize)/2)))
+teleport = pathfinder.getRandomCorner((1,0), maze)
+tx, ty = teleport
+maze[ty][tx] = 'T'
 path = pathfinder.getPath((1,0), (37, 28), maze)
 variableWall = path[(len(path)/3)*2]
 vx,vy = variableWall
 print variableWall
 maze[vy][vx] = 'W'
 plate = pathfinder.getRandomCorner((1,0), maze)
-while getDistance(variableWall, plate) < 2:
+while getDistance(variableWall, plate) < 2 and plate != teleport:
 	plate = pathfinder.getRandomCorner((1,0), maze)
 
 px,py = plate
@@ -94,6 +100,8 @@ def checkPlayer():
 			pState = 1
 	if ppos == (37, 28):	
 		return True
+	elif ppos == teleport:
+		ppos = (1,0)
 	return False	
 
 def drawField():
@@ -102,7 +110,7 @@ def drawField():
 	for y in range (0, len(maze)):
 		for x in range(0, len(maze[y])):
 			px, py = ppos
-			if getDistance((x,y),(px,py)) < 5:
+			if getDistance((x,y),(px,py)) < vision:
 				if maze[y][x] == '#':
 					block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
 					pygame.draw.rect(display, base00, block)
@@ -112,6 +120,10 @@ def drawField():
 				elif maze[y][x] == 'P':
 					block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
                               		pygame.draw.rect(display, red if pState == 0 else green, block)
+				elif maze[y][x] == 'T':
+                                        block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
+                                        pygame.draw.rect(display, red, block)
+
 	 			
 def movePlayer(direction):
 	global ppos
