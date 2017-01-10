@@ -1,6 +1,7 @@
 import pygame
 import mazebuilder
 import pathfinder
+import math
 
 cellsize = 20
 WHITE = (255, 255, 255)
@@ -17,8 +18,10 @@ windowSize = (780, 580)
 def getDistance(a, b):
         ax, ay = a
         bx, by = b
-        re = abs(ax-bx)+abs(ay-by)
-	return re
+        d1 = (ax-bx)**2
+	d2 = (ay-by)**2
+	re = d1+d2
+	return math.sqrt(re)
 
 #player position
 ppos = (1,0)
@@ -74,7 +77,7 @@ def run():
 			return
                 display.fill(base03)
                 drawField()
-                drawGrid()
+                #drawGrid()
                 drawPlayer()
                 pygame.display.update()
                 clock.tick(60)
@@ -98,15 +101,17 @@ def drawField():
 	global pState
 	for y in range (0, len(maze)):
 		for x in range(0, len(maze[y])):
-			if maze[y][x] == '#':
-				block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
-				pygame.draw.rect(display, base00, block)
-			elif maze[y][x] == 'W':
-				block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
-                                pygame.draw.rect(display, base00, block)
-			elif maze[y][x] == 'P':
-				block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
-                                pygame.draw.rect(display, red if pState == 0 else green, block)
+			px, py = ppos
+			if getDistance((x,y),(px,py)) < 5:
+				if maze[y][x] == '#':
+					block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
+					pygame.draw.rect(display, base00, block)
+				elif maze[y][x] == 'W':
+					block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
+                               		pygame.draw.rect(display, base00, block)
+				elif maze[y][x] == 'P':
+					block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
+                              		pygame.draw.rect(display, red if pState == 0 else green, block)
 	 			
 def movePlayer(direction):
 	global ppos
