@@ -40,7 +40,7 @@ vx,vy = variableWall
 print variableWall
 maze[vy][vx] = 'W'
 plate = pathfinder.getRandomCorner((1,0), maze)
-while getDistance(variableWall, plate) < 2 and plate != teleport:
+while getDistance(variableWall, plate) < 2 or plate == teleport:
 	plate = pathfinder.getRandomCorner((1,0), maze)
 
 px,py = plate
