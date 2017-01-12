@@ -25,16 +25,24 @@ def getDistance(a, b):
 
 def getMaze():
 	re = mazebuilder.build(mazebuilder.createField(((windowSize[0]/cellsize)/2), ((windowSize[1]/cellsize)/2)))
-	teleport = pathfinder.getRandomCorner((1,0), re)
+	start = (0,0)
+        end = (0,0)
+        for y in range (len(re)):
+                for x in range(len(re[y])):
+                        if re[y][x] == 'E':
+                                end = (x,y)
+                        elif re[y][x] == 'S':
+                                start = (x,y)
+	teleport = pathfinder.getRandomCorner(start, re)
 	tx, ty = teleport
 	re[ty][tx] = 'T'
-	path = pathfinder.getPath((1,0), (37, 28), re)
+	path = pathfinder.getPath(start, end, re)
 	vwall = path[(len(path)/3)*2]
 	vx,vy = vwall
 	re[vy][vx] = 'W'
-	plate = pathfinder.getRandomCorner((1,0), re)
+	plate = pathfinder.getRandomCorner(start, re)
 	while getDistance(vwall, plate) < 2 or plate == teleport:
-        	plate = pathfinder.getRandomCorner((1,0), re)
+        	plate = pathfinder.getRandomCorner(start, re)
 	px,py = plate
 	ret = []
 	re[py][px] = 'P'
@@ -47,27 +55,32 @@ def getMaze():
 
 def getGo(m):
 	re = []
+	ws = ['#', '.']
 	for y in range(len(m)):
 		for x in range(len(m[y])):
-			if m[y][x][0] == 'T':
-				re.append([(x,y), 'T'])
-			elif m[y][x][0] == 'W':
-				re.append([(x,y), 'W'])
-			elif m[y][x][0] == 'P':
-				re.append([(x,y), 'P'])
-	return re	
+			symbol =  m[y][x][0]
+			if symbol not in ws:
+				re.append([(x,y), symbol])
+	return re
 
-#player position
-ppos = (1,0)
+def getStartPos():
+	global gameObjects
+	for g in gameObjects:
+		if g[1] == 'S':
+			return g[0]
+	return None	
 
 #viewing distance
-vision = 2
+vision = 5
 
 #building maze, plates and fakewalls
 maze = getMaze()
 gameObjects = getGo(maze)
 print gameObjects
 wallsymbols = ['#', 'W']
+
+#player position
+ppos = getStartPos()
 
 pState = 0
 
@@ -100,12 +113,12 @@ def run():
                                 elif (event.key == pygame.K_DOWN):
                                         dir = 'DOWN'
                 movePlayer(dir)
-                if checkPlayer():
-			return
                 display.fill(base03)
                 drawField()
                 #drawGrid()
                 drawPlayer()
+		if checkPlayer():
+			return
                 pygame.display.update()
                 clock.tick(60)
 
@@ -126,10 +139,10 @@ def checkPlayer():
 			wx, wy = getCoordsOfObject('W')
 			maze[wy][wx] = ('.', 1)
 			pState = 1
-	if ppos == (37, 28):	
+	if ppos == getCoordsOfObject('E'):	
 		return True
 	elif maze[py][px][0] == 'T':
-		ppos = (1,0)
+		ppos = getCoordsOfObject('S')
 	return False	
 
 def drawField():

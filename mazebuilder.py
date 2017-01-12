@@ -15,8 +15,8 @@ def createField(dx, dy):
 		row.append(wall)
 		field.append(row)
 		field.append([wall]*nx)
-	field[0][1] = open
-	field[dy*2][nx-2] = open
+	field[0][(random.randint(1,dx)*2)-1] = 'S'
+	field[dy*2][(random.randint(3,dx)*2)-1] = 'E'
 	return field
 
 def printMaze(field):
