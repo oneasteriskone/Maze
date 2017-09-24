@@ -13,7 +13,9 @@ base0 = (131, 148, 150)
 base1 = (147, 161, 161)
 red = (220, 50, 47)
 green = (133, 153, 0)
-windowSize = (780, 580)	
+# Default
+# windowSize = (780, 580)	
+windowSize = (300, 300)
 
 def getDistance(a, b):
         ax, ay = a
@@ -34,23 +36,28 @@ def getMaze():
                         elif re[y][x] == 'S':
                                 start = (x,y)
 	teleport = pathfinder.getRandomCorner(start, re)
+
 	tx, ty = teleport
-	re[ty][tx] = 'T'
+	# Eliminar las trampas (teleport). 
+	# re[ty][tx] = 'T'
 	path = pathfinder.getPath(start, end, re)
 	vwall = path[(len(path)/3)*2]
 	vx,vy = vwall
+
 	re[vy][vx] = 'W'
 	plate = pathfinder.getRandomCorner(start, re)
 	while getDistance(vwall, plate) < 2 or plate == teleport:
         	plate = pathfinder.getRandomCorner(start, re)
 	px,py = plate
 	ret = []
+
 	re[py][px] = 'P'
 	for y in range(len(re)):
 		temp = []
 		for x in range(len(re[y])):
 			temp.append((re[y][x], 0))
 		ret.append(temp)	
+
 	return ret
 
 def getGo(m):
@@ -71,12 +78,14 @@ def getStartPos():
 	return None	
 
 #viewing distance
-vision = 5
+# Incremento a 50 para mostrar todo. 
+vision = 50
 
 #building maze, plates and fakewalls
 maze = getMaze()
 gameObjects = getGo(maze)
-print gameObjects
+# Cleaning.
+# print gameObjects
 wallsymbols = ['#', 'W']
 
 #player position
@@ -112,6 +121,8 @@ def run():
                                         dir = 'UP'
                                 elif (event.key == pygame.K_DOWN):
                                         dir = 'DOWN'
+                                elif (event.key == pygame.K_ESCAPE):
+                                	pygame.quit()
                 movePlayer(dir)
                 display.fill(base03)
                 drawField()
@@ -163,6 +174,13 @@ def drawField():
 				elif maze[y][x][0] == 'P':
 					block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
                               		pygame.draw.rect(display, red if pState == 0 else green, block)
+
+					if pState == 1:
+						myfont = pygame.font.SysFont("monospace", 15)
+						# render text
+						label = myfont.render("Has ganado!", 2, (255,255,0))
+						display.blit(label, (100, 100))
+
 				elif maze[y][x][0] == 'T':
                                         block = pygame.Rect(x*cellsize, y*cellsize, cellsize, cellsize)
                                         pygame.draw.rect(display, red, block)
@@ -198,4 +216,4 @@ def drawGrid():
 	for y in range(0, dy, cellsize):
 		pygame.draw.line(display, base00, (0, y), (dx, y))
 
-main()
+# main()
